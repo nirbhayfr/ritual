@@ -439,3 +439,40 @@
         animation: orb-drift 8s ease-in-out infinite;
     }
 }
+
+/* ═══════════════════════════════════════════════
+   VEDA RITUAL — Custom Scrollbar
+═══════════════════════════════════════════════ */
+
+.veda-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(63, 106, 103, 0.45) transparent;
+}
+
+.veda-scrollbar::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+.veda-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.veda-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom,
+            rgba(63, 106, 103, 0.28),
+            rgba(63, 106, 103, 0.52));
+    border-radius: 999px;
+    border: 1px solid rgba(244, 241, 232, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.veda-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom,
+            rgba(63, 106, 103, 0.45),
+            rgba(63, 106, 103, 0.75));
+}
+
+.veda-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+}

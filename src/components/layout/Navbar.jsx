@@ -96,12 +96,12 @@ const NAV_LINKS = [
 		path: "/consultation",
 	},
 	{
-		label: "Journal",
-		path: "/journal",
-	},
-	{
 		label: "About",
 		path: "/about",
+	},
+	{
+		label: "Blog",
+		path: "/blog",
 	},
 ];
 
@@ -114,6 +114,89 @@ export default function Navbar() {
 	const [scrolled, setScrolled] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
 	const location = useLocation();
+	/* ── Add these states ───────────────────────── */
+	const [searchOpen, setSearchOpen] = useState(false);
+	const [searchValue, setSearchValue] = useState("");
+
+	const searchDesktopRef = useRef(null);
+	const searchMobileRef = useRef(null);
+
+	/* ── Demo search data ───────────────────────── */
+	const SEARCH_ITEMS = [
+		"Triphala Ritual Oil",
+		"Ashwagandha Elixir",
+		"Golden Saffron Serum",
+		"Breathwork Consultation",
+		"Evening Ritual Kit",
+		"Journal — The Vessel Of Breath",
+	];
+
+	/* ── Filtered results ───────────────────────── */
+	const filteredResults = SEARCH_ITEMS.filter((item) =>
+		item.toLowerCase().includes(searchValue.toLowerCase()),
+	);
+
+	/* ── Add this useEffect ─────────────────────── */
+	useEffect(() => {
+		const desktop = searchDesktopRef.current;
+		const mobile = searchMobileRef.current;
+
+		if (searchOpen) {
+			if (desktop) {
+				gsap.fromTo(
+					desktop,
+					{
+						y: -10,
+						opacity: 0,
+					},
+					{
+						y: 0,
+						opacity: 1,
+						duration: 0.35,
+						ease: "power3.out",
+						pointerEvents: "auto",
+					},
+				);
+			}
+
+			if (mobile) {
+				gsap.fromTo(
+					mobile,
+					{
+						y: -10,
+						opacity: 0,
+					},
+					{
+						y: 0,
+						opacity: 1,
+						duration: 0.35,
+						ease: "power3.out",
+						pointerEvents: "auto",
+					},
+				);
+			}
+		} else {
+			if (desktop) {
+				gsap.to(desktop, {
+					y: -10,
+					opacity: 0,
+					duration: 0.25,
+					ease: "power2.inOut",
+					pointerEvents: "none",
+				});
+			}
+
+			if (mobile) {
+				gsap.to(mobile, {
+					y: -10,
+					opacity: 0,
+					duration: 0.25,
+					ease: "power2.inOut",
+					pointerEvents: "none",
+				});
+			}
+		}
+	}, [searchOpen]);
 
 	useEffect(() => {
 		// Entrance animation
@@ -252,9 +335,11 @@ export default function Navbar() {
 						<button
 							className="text-bark/45 hover:text-teal transition-colors p-1"
 							aria-label="Search"
+							onClick={() => setSearchOpen((v) => !v)}
 						>
 							<SearchIcon />
 						</button>
+
 						<button
 							className="hidden md:flex text-bark/45 hover:text-teal transition-colors p-1"
 							aria-label="Cart"
@@ -267,7 +352,6 @@ export default function Navbar() {
 						>
 							<UserIcon />
 						</button>
-
 						{/* Hamburger — mobile only */}
 						<button
 							className="flex md:hidden text-bark/60 hover:text-teal transition-colors p-1"
@@ -397,7 +481,6 @@ export default function Navbar() {
 						{/* Icon pills */}
 						<div className="flex gap-2">
 							{[
-								{ Icon: SearchIcon, label: "Search" },
 								{ Icon: BagIcon, label: "Cart" },
 								{ Icon: UserIcon, label: "Account" },
 							].map(({ Icon, label }) => (
@@ -434,6 +517,228 @@ export default function Navbar() {
 							<br />
 							modern ritual
 						</span>
+					</div>
+				</div>
+			</div>
+
+			{/* ── Desktop Search Overlay ───────────────── */}
+			<div
+				ref={searchDesktopRef}
+				className="hidden md:block fixed top-14 left-0 right-0 z-[60]"
+				style={{
+					opacity: 0,
+					transform: "translateY(-10px)",
+					pointerEvents: "none",
+				}}
+			>
+				<div
+					className="
+			mx-auto
+			w-full max-w-[760px]
+			mt-4
+			rounded-[28px]
+			overflow-hidden
+			border border-black/[0.06]
+			bg-[rgba(249,246,241,0.92)]
+			backdrop-blur-2xl
+			shadow-[0_20px_60px_rgba(45,58,46,0.12)]
+		"
+				>
+					{/* Input */}
+					<div className="flex items-center gap-4 px-6 h-[72px] border-b border-black/[0.05]">
+						<div className="text-teal/50">
+							<SearchIcon />
+						</div>
+
+						<input
+							autoFocus
+							type="text"
+							value={searchValue}
+							onChange={(e) =>
+								setSearchValue(e.target.value)
+							}
+							placeholder="Search rituals, formulations, journals..."
+							className="
+					flex-1
+					bg-transparent
+					outline-none
+					border-none
+					font-sans
+					text-[15px]
+					text-bark
+					placeholder:text-moss/40
+				"
+						/>
+
+						<button
+							onClick={() => setSearchOpen(false)}
+							className="
+					text-[10px]
+					tracking-[0.18em]
+					uppercase
+					text-moss/60
+					hover:text-teal
+					transition-colors
+				"
+						>
+							Close
+						</button>
+					</div>
+
+					{/* Results */}
+					<div className="p-3 max-h-[420px] overflow-y-auto veda-scrollbar">
+						{filteredResults.length > 0 ? (
+							filteredResults.map((item, i) => (
+								<button
+									key={i}
+									className="
+							w-full
+							flex items-center justify-between
+							px-4 py-4
+							rounded-[18px]
+							text-left
+							group
+							hover:bg-teal/[0.05]
+							transition-all duration-300
+						"
+								>
+									<div>
+										<p className="font-serif text-[12px] text-bark group-hover:text-teal transition-colors">
+											{item}
+										</p>
+
+										<p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-moss/40">
+											Veda Ritual
+										</p>
+									</div>
+
+									<div className="text-teal/30 group-hover:text-teal/70 transition-colors">
+										<ArrowRightIcon />
+									</div>
+								</button>
+							))
+						) : (
+							<div className="py-16 text-center">
+								<p className="font-serif text-[22px] text-bark/80">
+									No results found
+								</p>
+
+								<p className="mt-2 text-[11px] tracking-[0.14em] uppercase text-moss/40">
+									Try another search term
+								</p>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+
+			{/* ── Mobile Search Overlay ────────────────── */}
+			<div
+				ref={searchMobileRef}
+				className="md:hidden fixed inset-0 z-[70]"
+				style={{
+					opacity: 0,
+					transform: "translateY(-10px)",
+					pointerEvents: "none",
+				}}
+			>
+				{/* Backdrop */}
+				<div
+					onClick={() => setSearchOpen(false)}
+					className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+				/>
+
+				{/* Panel */}
+				<div
+					className="
+			absolute top-0 left-0 right-0
+			bg-[rgba(249,246,241,0.97)]
+			backdrop-blur-2xl
+			border-b border-black/[0.06]
+			shadow-[0_12px_40px_rgba(45,58,46,0.12)]
+		"
+				>
+					{/* Header */}
+					<div className="flex items-center gap-3 px-5 h-16 border-b border-black/[0.05]">
+						<div className="text-teal/50">
+							<SearchIcon />
+						</div>
+
+						<input
+							autoFocus
+							type="text"
+							value={searchValue}
+							onChange={(e) =>
+								setSearchValue(e.target.value)
+							}
+							placeholder="Search..."
+							className="
+					flex-1
+					bg-transparent
+					outline-none
+					border-none
+					text-[15px]
+					font-sans
+					text-bark
+					placeholder:text-moss/40
+				"
+						/>
+
+						<button
+							onClick={() => setSearchOpen(false)}
+							className="
+					text-[10px]
+					tracking-[0.18em]
+					uppercase
+					text-moss/60
+				"
+						>
+							Close
+						</button>
+					</div>
+
+					{/* Results */}
+					<div className="px-3 py-2 max-h-[70vh] overflow-y-auto veda-scrollbar">
+						{filteredResults.length > 0 ? (
+							filteredResults.map((item, i) => (
+								<button
+									key={i}
+									className="
+							w-full
+							flex items-center justify-between
+							px-3 py-4
+							rounded-[16px]
+							text-left
+							hover:bg-teal/[0.05]
+							transition-colors
+						"
+								>
+									<div>
+										<p className="font-serif text-[12px] text-bark">
+											{item}
+										</p>
+
+										<p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-moss/40">
+											Veda Ritual
+										</p>
+									</div>
+
+									<div className="text-teal/40">
+										<ArrowRightIcon />
+									</div>
+								</button>
+							))
+						) : (
+							<div className="py-16 text-center">
+								<p className="font-serif text-[20px] text-bark/80">
+									No results
+								</p>
+
+								<p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-moss/40">
+									Try another term
+								</p>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

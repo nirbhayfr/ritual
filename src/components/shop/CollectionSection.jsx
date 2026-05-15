@@ -5,10 +5,10 @@ const CATEGORY_FILTERS = [
 	{ label: "Featured", icon: "sparkles", count: 24 },
 	{ label: "New", icon: "bolt", count: 12 },
 	null, // divider
-	{ label: "Apparel", icon: "shirt", count: 36 },
-	{ label: "Living", icon: "home", count: 29 },
+	{ label: "Drops", icon: "shirt", count: 36 },
+	{ label: "Liquid", icon: "home", count: 29 },
 	{ label: "Wellness", icon: "leaf", count: 18 },
-	{ label: "Tech", icon: "laptop", count: 9 },
+	{ label: "Powders", icon: "laptop", count: 9 },
 ];
 
 const STATUS_FILTERS = [

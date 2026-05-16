@@ -67,6 +67,38 @@ const ArrowRightIcon = () => (
 	</svg>
 );
 
+const CloseIcon = () => (
+	<svg
+		width="13"
+		height="13"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="1.8"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+	>
+		<path d="M18 6 6 18M6 6l12 12" />
+	</svg>
+);
+
+const TrashIcon = () => (
+	<svg
+		width="12"
+		height="12"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="1.6"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+	>
+		<polyline points="3 6 5 6 21 6" />
+		<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+		<path d="M10 11v6M14 11v6M9 6V4h6v2" />
+	</svg>
+);
+
 const HamburgerIcon = ({ open }) => (
 	<div className="flex flex-col gap-[5px] w-5">
 		<span
@@ -81,47 +113,344 @@ const HamburgerIcon = ({ open }) => (
 	</div>
 );
 
-/* ── Nav links ──────────────────────────────── */
+/* ── Nav links ─────────────────────────────── */
 const NAV_LINKS = [
+	{ label: "Home", path: "/" },
+	{ label: "Shop", path: "/shop" },
+	{ label: "Consultation", path: "/consultation" },
+	{ label: "About", path: "/about" },
+	{ label: "Blog", path: "/blog" },
+];
+
+/* ── Demo cart ─────────────────────────────── */
+const INITIAL_CART = [
 	{
-		label: "Home",
-		path: "/",
+		id: 1,
+		name: "Triphala Ritual Oil",
+		subtitle: "100ml · Daily Nourishment",
+		price: 74,
+		qty: 1,
+		image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=120&q=80",
 	},
 	{
-		label: "Shop",
-		path: "/shop",
-	},
-	{
-		label: "Consultation",
-		path: "/consultation",
-	},
-	{
-		label: "About",
-		path: "/about",
-	},
-	{
-		label: "Blog",
-		path: "/blog",
+		id: 2,
+		name: "Ashwagandha Elixir",
+		subtitle: "60ml · Adaptogenic Blend",
+		price: 68,
+		qty: 2,
+		image: "https://plus.unsplash.com/premium_photo-1694112647431-2ac31b3885c6?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 	},
 ];
 
-/* ── Component ──────────────────────────────── */
+/* ── Shared CartPanel ──────────────────────── */
+function CartPanel({ cart, onUpdateQty, onRemove, onClose, isMobile = false }) {
+	const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+	const itemCount = cart.reduce((sum, i) => sum + i.qty, 0);
+
+	return (
+		<div className="flex flex-col">
+			{/* Header */}
+			<div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.06]">
+				<div>
+					<p
+						style={{
+							fontFamily: "var(--font-sans)",
+							fontSize: 10,
+							letterSpacing: "0.22em",
+							textTransform: "uppercase",
+							color: "var(--color-teal)",
+							fontWeight: 500,
+						}}
+					>
+						Your Ritual
+					</p>
+					<p
+						style={{
+							fontFamily: "var(--font-sans)",
+							fontSize: 9,
+							letterSpacing: "0.12em",
+							textTransform: "uppercase",
+							color: "var(--color-moss)",
+							opacity: 0.45,
+							marginTop: 2,
+						}}
+					>
+						{itemCount} {itemCount === 1 ? "item" : "items"}
+					</p>
+				</div>
+				<button
+					onClick={onClose}
+					className="w-8 h-8 flex items-center justify-center rounded-full border border-black/[0.08] hover:border-teal/40 hover:text-teal transition-colors duration-200"
+					style={{ color: "var(--color-moss)" }}
+				>
+					<CloseIcon />
+				</button>
+			</div>
+
+			{/* Items */}
+			<div
+				className="overflow-y-auto veda-scrollbar px-5 py-4"
+				style={{ maxHeight: isMobile ? "48vh" : 320 }}
+			>
+				{cart.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-14 gap-3">
+						<div
+							style={{
+								color: "var(--color-teal)",
+								opacity: 0.2,
+							}}
+						>
+							<BagIcon />
+						</div>
+						<p
+							style={{
+								fontFamily: "var(--font-serif)",
+								fontSize: 15,
+								color: "var(--color-bark)",
+								opacity: 0.5,
+							}}
+						>
+							Your bag is empty
+						</p>
+						<p
+							style={{
+								fontFamily: "var(--font-sans)",
+								fontSize: 9,
+								letterSpacing: "0.16em",
+								textTransform: "uppercase",
+								color: "var(--color-moss)",
+								opacity: 0.35,
+							}}
+						>
+							Begin your ritual
+						</p>
+					</div>
+				) : (
+					<ul className="flex flex-col gap-5 list-none p-0 m-0">
+						{cart.map((item) => (
+							<li key={item.id} className="flex gap-3">
+								{/* Thumbnail */}
+								<div
+									className="shrink-0 overflow-hidden"
+									style={{
+										width: 64,
+										height: 64,
+										borderRadius: 12,
+										background:
+											"var(--color-brand-stone)",
+									}}
+								>
+									<img
+										src={item.image}
+										alt={item.name}
+										className="w-full h-full object-cover"
+									/>
+								</div>
+
+								{/* Info */}
+								<div className="flex-1 min-w-0">
+									<p
+										style={{
+											fontFamily:
+												"var(--font-serif)",
+											fontSize: 14,
+											color: "var(--color-bark)",
+											lineHeight: 1.3,
+										}}
+									>
+										{item.name}
+									</p>
+									<p
+										style={{
+											fontFamily:
+												"var(--font-sans)",
+											fontSize: 9,
+											letterSpacing: "0.1em",
+											textTransform:
+												"uppercase",
+											color: "var(--color-moss)",
+											opacity: 0.4,
+											marginTop: 2,
+										}}
+									>
+										{item.subtitle}
+									</p>
+
+									{/* Qty + price */}
+									<div className="flex items-center justify-between mt-2.5">
+										{/* Stepper */}
+										<div className="flex items-center border border-black/[0.08] rounded-full overflow-hidden">
+											<button
+												onClick={() =>
+													onUpdateQty(
+														item.id,
+														item.qty -
+															1,
+													)
+												}
+												className="w-6 h-6 flex items-center justify-center hover:bg-teal/[0.08] transition-colors"
+												style={{
+													color: "var(--color-teal)",
+													fontSize: 14,
+												}}
+											>
+												−
+											</button>
+											<span
+												className="w-6 text-center"
+												style={{
+													fontFamily:
+														"var(--font-sans)",
+													fontSize: 11,
+													color: "var(--color-bark)",
+												}}
+											>
+												{item.qty}
+											</span>
+											<button
+												onClick={() =>
+													onUpdateQty(
+														item.id,
+														item.qty +
+															1,
+													)
+												}
+												className="w-6 h-6 flex items-center justify-center hover:bg-teal/[0.08] transition-colors"
+												style={{
+													color: "var(--color-teal)",
+													fontSize: 14,
+												}}
+											>
+												+
+											</button>
+										</div>
+
+										<div className="flex items-center gap-2.5">
+											<span
+												style={{
+													fontFamily:
+														"var(--font-serif)",
+													fontSize: 15,
+													color: "var(--color-bark)",
+												}}
+											>
+												$
+												{item.price *
+													item.qty}
+											</span>
+											<button
+												onClick={() =>
+													onRemove(
+														item.id,
+													)
+												}
+												className="opacity-25 hover:opacity-60 transition-opacity"
+												style={{
+													color: "var(--color-moss)",
+												}}
+												aria-label="Remove"
+											>
+												<TrashIcon />
+											</button>
+										</div>
+									</div>
+								</div>
+							</li>
+						))}
+					</ul>
+				)}
+			</div>
+
+			{/* Footer */}
+			{cart.length > 0 && (
+				<div
+					className="px-6 py-5 border-t border-black/[0.06]"
+					style={{ background: "rgba(244,241,232,0.7)" }}
+				>
+					{/* Subtotal */}
+					<div className="flex items-center justify-between mb-1">
+						<span
+							style={{
+								fontFamily: "var(--font-sans)",
+								fontSize: 10,
+								letterSpacing: "0.16em",
+								textTransform: "uppercase",
+								color: "var(--color-moss)",
+							}}
+						>
+							Subtotal
+						</span>
+						<span
+							style={{
+								fontFamily: "var(--font-serif)",
+								fontSize: 20,
+								color: "var(--color-bark)",
+							}}
+						>
+							${subtotal}
+						</span>
+					</div>
+
+					<p
+						className="text-center mb-4"
+						style={{
+							fontFamily: "var(--font-sans)",
+							fontSize: 9,
+							letterSpacing: "0.1em",
+							textTransform: "uppercase",
+							color: "var(--color-moss)",
+							opacity: 0.35,
+						}}
+					>
+						Shipping &amp; taxes calculated at checkout
+					</p>
+
+					<button className="btn-primary w-full flex items-center justify-center gap-2">
+						Proceed to Checkout
+						<ArrowRightIcon />
+					</button>
+
+					<button
+						onClick={onClose}
+						className="w-full mt-2 py-2 transition-colors duration-200 hover:opacity-60"
+						style={{
+							fontFamily: "var(--font-sans)",
+							fontSize: 9.5,
+							letterSpacing: "0.16em",
+							textTransform: "uppercase",
+							color: "var(--color-moss)",
+							opacity: 0.45,
+						}}
+					>
+						Continue Shopping
+					</button>
+				</div>
+			)}
+		</div>
+	);
+}
+
+/* ── Navbar ────────────────────────────────── */
 export default function Navbar() {
 	const pillRef = useRef(null);
 	const drawerRef = useRef(null);
 	const itemRefs = useRef([]);
 	const footerRef = useRef(null);
-	const [scrolled, setScrolled] = useState(false);
-	const [menuOpen, setMenuOpen] = useState(false);
-	const location = useLocation();
-	/* ── Add these states ───────────────────────── */
-	const [searchOpen, setSearchOpen] = useState(false);
-	const [searchValue, setSearchValue] = useState("");
-
+	const cartDesktopRef = useRef(null);
+	const cartMobileRef = useRef(null);
 	const searchDesktopRef = useRef(null);
 	const searchMobileRef = useRef(null);
 
-	/* ── Demo search data ───────────────────────── */
+	const [scrolled, setScrolled] = useState(false);
+	const [menuOpen, setMenuOpen] = useState(false);
+	const [searchOpen, setSearchOpen] = useState(false);
+	const [cartOpen, setCartOpen] = useState(false);
+	const [searchValue, setSearchValue] = useState("");
+	const [cart, setCart] = useState(INITIAL_CART);
+
+	const location = useLocation();
+	const itemCount = cart.reduce((sum, i) => sum + i.qty, 0);
+
 	const SEARCH_ITEMS = [
 		"Triphala Ritual Oil",
 		"Ashwagandha Elixir",
@@ -130,25 +459,58 @@ export default function Navbar() {
 		"Evening Ritual Kit",
 		"Journal — The Vessel Of Breath",
 	];
-
-	/* ── Filtered results ───────────────────────── */
-	const filteredResults = SEARCH_ITEMS.filter((item) =>
-		item.toLowerCase().includes(searchValue.toLowerCase()),
+	const filteredResults = SEARCH_ITEMS.filter((i) =>
+		i.toLowerCase().includes(searchValue.toLowerCase()),
 	);
 
-	/* ── Add this useEffect ─────────────────────── */
-	useEffect(() => {
-		const desktop = searchDesktopRef.current;
-		const mobile = searchMobileRef.current;
+	const updateQty = (id, qty) => {
+		if (qty < 1)
+			return setCart((prev) => prev.filter((i) => i.id !== id));
+		setCart((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
+	};
+	const removeItem = (id) =>
+		setCart((prev) => prev.filter((i) => i.id !== id));
 
-		if (searchOpen) {
-			if (desktop) {
+	const toggleSearch = () => {
+		setSearchOpen((v) => !v);
+		setCartOpen(false);
+	};
+	const toggleCart = () => {
+		setCartOpen((v) => !v);
+		setSearchOpen(false);
+	};
+
+	/* ── Animate search ── */
+	useEffect(() => {
+		const tween = searchOpen
+			? {
+					y: 0,
+					opacity: 1,
+					duration: 0.35,
+					ease: "power3.out",
+					pointerEvents: "auto",
+				}
+			: {
+					y: -10,
+					opacity: 0,
+					duration: 0.25,
+					ease: "power2.in",
+					pointerEvents: "none",
+				};
+		if (searchDesktopRef.current)
+			gsap.to(searchDesktopRef.current, tween);
+		if (searchMobileRef.current) gsap.to(searchMobileRef.current, tween);
+	}, [searchOpen]);
+
+	/* ── Animate cart ── */
+	useEffect(() => {
+		const desktop = cartDesktopRef.current;
+		const mobile = cartMobileRef.current;
+		if (cartOpen) {
+			if (desktop)
 				gsap.fromTo(
 					desktop,
-					{
-						y: -10,
-						opacity: 0,
-					},
+					{ y: -10, opacity: 0 },
 					{
 						y: 0,
 						opacity: 1,
@@ -157,49 +519,38 @@ export default function Navbar() {
 						pointerEvents: "auto",
 					},
 				);
-			}
-
-			if (mobile) {
+			if (mobile)
 				gsap.fromTo(
 					mobile,
+					{ y: "100%" },
 					{
-						y: -10,
-						opacity: 0,
-					},
-					{
-						y: 0,
-						opacity: 1,
-						duration: 0.35,
+						y: "0%",
+						duration: 0.42,
 						ease: "power3.out",
 						pointerEvents: "auto",
 					},
 				);
-			}
 		} else {
-			if (desktop) {
+			if (desktop)
 				gsap.to(desktop, {
 					y: -10,
 					opacity: 0,
 					duration: 0.25,
-					ease: "power2.inOut",
+					ease: "power2.in",
 					pointerEvents: "none",
 				});
-			}
-
-			if (mobile) {
+			if (mobile)
 				gsap.to(mobile, {
-					y: -10,
-					opacity: 0,
-					duration: 0.25,
-					ease: "power2.inOut",
+					y: "100%",
+					duration: 0.3,
+					ease: "power2.in",
 					pointerEvents: "none",
 				});
-			}
 		}
-	}, [searchOpen]);
+	}, [cartOpen]);
 
+	/* ── Entrance + scroll ── */
 	useEffect(() => {
-		// Entrance animation
 		gsap.set(pillRef.current, { y: -30, opacity: 0 });
 		gsap.to(pillRef.current, {
 			y: 0,
@@ -208,20 +559,16 @@ export default function Navbar() {
 			ease: "power3.out",
 			delay: 0.1,
 		});
-
-		// Scroll shadow toggle
 		const onScroll = () => setScrolled(window.scrollY > 40);
 		window.addEventListener("scroll", onScroll, { passive: true });
 		return () => window.removeEventListener("scroll", onScroll);
 	}, []);
 
-	// Animate drawer open/close
+	/* ── Animate mobile drawer ── */
 	useEffect(() => {
 		const drawer = drawerRef.current;
 		if (!drawer) return;
-
 		if (menuOpen) {
-			// Slide drawer down from nav
 			gsap.fromTo(
 				drawer,
 				{ y: -8, opacity: 0, pointerEvents: "none" },
@@ -233,8 +580,6 @@ export default function Navbar() {
 					pointerEvents: "auto",
 				},
 			);
-
-			// Stagger nav items
 			itemRefs.current.forEach((el, i) => {
 				if (!el) return;
 				gsap.fromTo(
@@ -249,8 +594,6 @@ export default function Navbar() {
 					},
 				);
 			});
-
-			// Footer
 			if (footerRef.current) {
 				gsap.fromTo(
 					footerRef.current,
@@ -275,25 +618,14 @@ export default function Navbar() {
 		}
 	}, [menuOpen]);
 
-	const closeMenu = () => setMenuOpen(false);
-
 	return (
 		<>
-			{/* ── Navbar ── */}
+			{/* ── Navbar bar ── */}
 			<nav className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
 				<div
 					ref={pillRef}
-					className={`
-						pointer-events-auto
-						flex items-center justify-between
-						w-full h-14 px-6
-						bg-[rgba(244,241,232,0.82)] backdrop-blur-xl
-						border-b border-black/[0.07]
-						transition-all duration-300
-						${scrolled ? "shadow-lg shadow-black/[0.08]" : ""}
-					`}
+					className={`pointer-events-auto flex items-center justify-between w-full h-14 px-6 bg-[rgba(244,241,232,0.82)] backdrop-blur-xl border-b border-black/[0.07] transition-all duration-300 ${scrolled ? "shadow-lg shadow-black/[0.08]" : ""}`}
 				>
-					{/* Logo */}
 					<a
 						href="#"
 						className="font-heading text-[11.5px] font-normal tracking-[0.2em] text-teal whitespace-nowrap"
@@ -301,27 +633,15 @@ export default function Navbar() {
 						VEDA RITUAL
 					</a>
 
-					{/* Desktop links */}
 					<ul className="hidden md:flex items-center gap-8 list-none p-0 m-0">
 						{NAV_LINKS.map((item) => {
 							const isActive =
 								location.pathname === item.path;
-
 							return (
 								<li key={item.path}>
 									<Link
 										to={item.path}
-										className={`
-						text-[11px] uppercase tracking-[0.09em] font-normal
-						relative transition-colors duration-200
-						after:absolute after:bottom-[-4px] after:left-0 after:h-px after:bg-teal
-						after:transition-[width] after:duration-200
-						${
-							isActive
-								? "text-teal after:w-full"
-								: "text-moss hover:text-teal after:w-0 hover:after:w-full"
-						}
-					`}
+										className={`text-[11px] uppercase tracking-[0.09em] font-normal relative transition-colors duration-200 after:absolute after:bottom-[-4px] after:left-0 after:h-px after:bg-teal after:transition-[width] after:duration-200 ${isActive ? "text-teal after:w-full" : "text-moss hover:text-teal after:w-0 hover:after:w-full"}`}
 									>
 										{item.label}
 									</Link>
@@ -330,29 +650,45 @@ export default function Navbar() {
 						})}
 					</ul>
 
-					{/* Icon buttons */}
 					<div className="flex items-center gap-[14px]">
 						<button
 							className="text-bark/45 hover:text-teal transition-colors p-1"
 							aria-label="Search"
-							onClick={() => setSearchOpen((v) => !v)}
+							onClick={toggleSearch}
 						>
 							<SearchIcon />
 						</button>
 
+						{/* Cart — desktop + mobile (always visible) */}
 						<button
-							className="hidden md:flex text-bark/45 hover:text-teal transition-colors p-1"
+							className="relative text-bark/45 hover:text-teal transition-colors p-1"
 							aria-label="Cart"
+							onClick={toggleCart}
 						>
 							<BagIcon />
+							{itemCount > 0 && (
+								<span
+									className="absolute -top-0.5 -right-0.5 w-[15px] h-[15px] rounded-full flex items-center justify-center text-[8px] font-semibold leading-none"
+									style={{
+										background:
+											"var(--color-teal)",
+										color: "var(--color-cream)",
+										fontFamily:
+											"var(--font-sans)",
+									}}
+								>
+									{itemCount}
+								</span>
+							)}
 						</button>
+
 						<button
 							className="hidden md:flex text-bark/45 hover:text-teal transition-colors p-1"
 							aria-label="Account"
 						>
 							<UserIcon />
 						</button>
-						{/* Hamburger — mobile only */}
+
 						<button
 							className="flex md:hidden text-bark/60 hover:text-teal transition-colors p-1"
 							aria-label={
@@ -366,7 +702,7 @@ export default function Navbar() {
 				</div>
 			</nav>
 
-			{/* ── Mobile drawer (compact, not full-screen) ── */}
+			{/* ── Mobile nav drawer ── */}
 			<div
 				ref={drawerRef}
 				className="fixed top-14 left-0 right-0 z-40 md:hidden"
@@ -376,15 +712,7 @@ export default function Navbar() {
 					pointerEvents: "none",
 				}}
 			>
-				{/* Panel */}
-				<div
-					className="
-						bg-[rgba(249,246,241,0.97)] backdrop-blur-2xl saturate-[1.3]
-						border-b border-black/[0.08]
-						shadow-[0_12px_40px_rgba(45,58,46,0.10)]
-					"
-				>
-					{/* Top accent line */}
+				<div className="bg-[rgba(249,246,241,0.97)] backdrop-blur-2xl saturate-[1.3] border-b border-black/[0.08] shadow-[0_12px_40px_rgba(45,58,46,0.10)]">
 					<div
 						className="h-px w-full"
 						style={{
@@ -392,13 +720,10 @@ export default function Navbar() {
 								"linear-gradient(to right, transparent, rgba(63,106,103,0.25), transparent)",
 						}}
 					/>
-
-					{/* Nav links */}
 					<ul className="list-none p-0 m-0 pt-1.5 pb-1">
 						{NAV_LINKS.map((item, i) => {
 							const isActive =
 								location.pathname === item.path;
-
 							return (
 								<li
 									key={item.label}
@@ -409,54 +734,32 @@ export default function Navbar() {
 									{i > 0 && (
 										<div className="h-px bg-black/[0.05] mx-[22px]" />
 									)}
-
 									<Link
 										to={item.path}
-										onClick={closeMenu}
-										className={`
-						relative flex items-center justify-between
-						px-[22px] py-[10px]
-						transition-colors duration-200
-						group
-						${isActive ? "bg-teal/[0.07]" : "hover:bg-teal/[0.05]"}
-					`}
+										onClick={() =>
+											setMenuOpen(false)
+										}
+										className={`relative flex items-center justify-between px-[22px] py-[10px] transition-colors duration-200 group ${isActive ? "bg-teal/[0.07]" : "hover:bg-teal/[0.05]"}`}
 									>
 										{isActive && (
 											<span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-teal" />
 										)}
-
 										<div className="flex items-center gap-3">
 											<span
-												className={`
-								text-[9px] font-medium tracking-[0.08em] min-w-[16px]
-								${isActive ? "text-teal/65" : "text-teal/35"}
-							`}
+												className={`text-[9px] font-medium tracking-[0.08em] min-w-[16px] ${isActive ? "text-teal/65" : "text-teal/35"}`}
 											>
 												{String(
 													i + 1,
 												).padStart(2, "0")}
 											</span>
-
 											<span
-												className={`
-								font-serif text-[17px] font-normal tracking-[0.01em]
-								transition-colors duration-200
-								${isActive ? "text-teal" : "text-bark/60 group-hover:text-bark"}
-							`}
+												className={`font-serif text-[17px] font-normal tracking-[0.01em] transition-colors duration-200 ${isActive ? "text-teal" : "text-bark/60 group-hover:text-bark"}`}
 											>
 												{item.label}
 											</span>
 										</div>
-
 										<span
-											className={`
-							transition-all duration-200
-							${
-								isActive
-									? "opacity-40 translate-x-0"
-									: "opacity-0 -translate-x-1 group-hover:opacity-30 group-hover:translate-x-0"
-							}
-						`}
+											className={`transition-all duration-200 ${isActive ? "opacity-40" : "opacity-0 -translate-x-1 group-hover:opacity-30 group-hover:translate-x-0"}`}
 											style={{
 												color: "var(--color-teal)",
 											}}
@@ -468,40 +771,23 @@ export default function Navbar() {
 							);
 						})}
 					</ul>
-
-					{/* Footer row */}
 					<div
 						ref={footerRef}
-						className="
-							flex items-center justify-between
-							px-[22px] py-3
-							border-t border-black/[0.06]
-						"
+						className="flex items-center justify-between px-[22px] py-3 border-t border-black/[0.06]"
 					>
-						{/* Icon pills */}
 						<div className="flex gap-2">
-							{[
-								{ Icon: BagIcon, label: "Cart" },
-								{ Icon: UserIcon, label: "Account" },
-							].map(({ Icon, label }) => (
-								<button
-									key={label}
-									aria-label={label}
-									className="
-										w-[34px] h-[34px] rounded-full
-										border border-teal/20 bg-teal/5
-										flex items-center justify-center
-										text-teal/65
-										hover:border-teal/45 hover:bg-teal/10
-										transition-colors duration-200
-									"
-								>
-									<Icon />
-								</button>
-							))}
+							{[{ Icon: UserIcon, label: "Account" }].map(
+								({ Icon, label }) => (
+									<button
+										key={label}
+										aria-label={label}
+										className="w-[34px] h-[34px] rounded-full border border-teal/20 bg-teal/5 flex items-center justify-center text-teal/65 hover:border-teal/45 hover:bg-teal/10 transition-colors duration-200"
+									>
+										<Icon />
+									</button>
+								),
+							)}
 						</div>
-
-						{/* Tagline */}
 						<span
 							className="text-right"
 							style={{
@@ -521,7 +807,68 @@ export default function Navbar() {
 				</div>
 			</div>
 
-			{/* ── Desktop Search Overlay ───────────────── */}
+			{/* ── Desktop Cart dropdown ── */}
+			<div
+				ref={cartDesktopRef}
+				className="hidden md:block fixed top-14 right-0 z-[60]"
+				style={{
+					opacity: 0,
+					transform: "translateY(-10px)",
+					pointerEvents: "none",
+				}}
+			>
+				<div
+					className="mr-4 mt-3 w-[400px] overflow-hidden border border-black/[0.06] shadow-[0_20px_60px_rgba(45,58,46,0.14)]"
+					style={{
+						background: "rgba(249,246,241,0.97)",
+						backdropFilter: "blur(24px)",
+						borderRadius: "var(--radius-card)",
+					}}
+				>
+					<CartPanel
+						cart={cart}
+						onUpdateQty={updateQty}
+						onRemove={removeItem}
+						onClose={() => setCartOpen(false)}
+					/>
+				</div>
+			</div>
+
+			{/* ── Mobile Cart bottom sheet ── */}
+			<div
+				ref={cartMobileRef}
+				className="md:hidden fixed inset-0 z-[70]"
+				style={{ pointerEvents: "none" }}
+			>
+				{/* Backdrop */}
+				<div
+					onClick={() => setCartOpen(false)}
+					className="absolute inset-0 bg-black/25 backdrop-blur-sm"
+				/>
+				{/* Sheet */}
+				<div
+					className="absolute bottom-0 left-0 right-0 overflow-hidden border-t border-black/[0.06] shadow-[0_-12px_40px_rgba(45,58,46,0.14)]"
+					style={{
+						background: "rgba(249,246,241,0.98)",
+						backdropFilter: "blur(24px)",
+						borderRadius: "20px 20px 0 0",
+					}}
+				>
+					{/* Drag handle */}
+					<div className="flex justify-center pt-3 pb-1">
+						<div className="w-8 h-[3px] rounded-full bg-black/[0.1]" />
+					</div>
+					<CartPanel
+						cart={cart}
+						onUpdateQty={updateQty}
+						onRemove={removeItem}
+						onClose={() => setCartOpen(false)}
+						isMobile
+					/>
+				</div>
+			</div>
+
+			{/* ── Desktop Search ── */}
 			<div
 				ref={searchDesktopRef}
 				className="hidden md:block fixed top-14 left-0 right-0 z-[60]"
@@ -532,24 +879,13 @@ export default function Navbar() {
 				}}
 			>
 				<div
-					className="
-			mx-auto
-			w-full max-w-[760px]
-			mt-4
-			rounded-[28px]
-			overflow-hidden
-			border border-black/[0.06]
-			bg-[rgba(249,246,241,0.92)]
-			backdrop-blur-2xl
-			shadow-[0_20px_60px_rgba(45,58,46,0.12)]
-		"
+					className="mx-auto w-full max-w-[760px] mt-4 overflow-hidden border border-black/[0.06] bg-[rgba(249,246,241,0.92)] backdrop-blur-2xl shadow-[0_20px_60px_rgba(45,58,46,0.12)]"
+					style={{ borderRadius: 28 }}
 				>
-					{/* Input */}
 					<div className="flex items-center gap-4 px-6 h-[72px] border-b border-black/[0.05]">
 						<div className="text-teal/50">
 							<SearchIcon />
 						</div>
-
 						<input
 							autoFocus
 							type="text"
@@ -558,60 +894,31 @@ export default function Navbar() {
 								setSearchValue(e.target.value)
 							}
 							placeholder="Search rituals, formulations, journals..."
-							className="
-					flex-1
-					bg-transparent
-					outline-none
-					border-none
-					font-sans
-					text-[15px]
-					text-bark
-					placeholder:text-moss/40
-				"
+							className="flex-1 bg-transparent outline-none border-none font-sans text-[15px] text-bark placeholder:text-moss/40"
 						/>
-
 						<button
 							onClick={() => setSearchOpen(false)}
-							className="
-					text-[10px]
-					tracking-[0.18em]
-					uppercase
-					text-moss/60
-					hover:text-teal
-					transition-colors
-				"
+							className="text-[10px] tracking-[0.18em] uppercase text-moss/60 hover:text-teal transition-colors"
 						>
 							Close
 						</button>
 					</div>
-
-					{/* Results */}
 					<div className="p-3 max-h-[420px] overflow-y-auto veda-scrollbar">
 						{filteredResults.length > 0 ? (
 							filteredResults.map((item, i) => (
 								<button
 									key={i}
-									className="
-							w-full
-							flex items-center justify-between
-							px-4 py-4
-							rounded-[18px]
-							text-left
-							group
-							hover:bg-teal/[0.05]
-							transition-all duration-300
-						"
+									className="w-full flex items-center justify-between px-4 py-4 text-left group hover:bg-teal/[0.05] transition-all duration-300"
+									style={{ borderRadius: 18 }}
 								>
 									<div>
 										<p className="font-serif text-[12px] text-bark group-hover:text-teal transition-colors">
 											{item}
 										</p>
-
 										<p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-moss/40">
 											Veda Ritual
 										</p>
 									</div>
-
 									<div className="text-teal/30 group-hover:text-teal/70 transition-colors">
 										<ArrowRightIcon />
 									</div>
@@ -622,7 +929,6 @@ export default function Navbar() {
 								<p className="font-serif text-[22px] text-bark/80">
 									No results found
 								</p>
-
 								<p className="mt-2 text-[11px] tracking-[0.14em] uppercase text-moss/40">
 									Try another search term
 								</p>
@@ -632,7 +938,7 @@ export default function Navbar() {
 				</div>
 			</div>
 
-			{/* ── Mobile Search Overlay ────────────────── */}
+			{/* ── Mobile Search ── */}
 			<div
 				ref={searchMobileRef}
 				className="md:hidden fixed inset-0 z-[70]"
@@ -642,28 +948,15 @@ export default function Navbar() {
 					pointerEvents: "none",
 				}}
 			>
-				{/* Backdrop */}
 				<div
 					onClick={() => setSearchOpen(false)}
 					className="absolute inset-0 bg-black/20 backdrop-blur-sm"
 				/>
-
-				{/* Panel */}
-				<div
-					className="
-			absolute top-0 left-0 right-0
-			bg-[rgba(249,246,241,0.97)]
-			backdrop-blur-2xl
-			border-b border-black/[0.06]
-			shadow-[0_12px_40px_rgba(45,58,46,0.12)]
-		"
-				>
-					{/* Header */}
+				<div className="absolute top-0 left-0 right-0 bg-[rgba(249,246,241,0.97)] backdrop-blur-2xl border-b border-black/[0.06] shadow-[0_12px_40px_rgba(45,58,46,0.12)]">
 					<div className="flex items-center gap-3 px-5 h-16 border-b border-black/[0.05]">
 						<div className="text-teal/50">
 							<SearchIcon />
 						</div>
-
 						<input
 							autoFocus
 							type="text"
@@ -672,57 +965,31 @@ export default function Navbar() {
 								setSearchValue(e.target.value)
 							}
 							placeholder="Search..."
-							className="
-					flex-1
-					bg-transparent
-					outline-none
-					border-none
-					text-[15px]
-					font-sans
-					text-bark
-					placeholder:text-moss/40
-				"
+							className="flex-1 bg-transparent outline-none border-none text-[15px] font-sans text-bark placeholder:text-moss/40"
 						/>
-
 						<button
 							onClick={() => setSearchOpen(false)}
-							className="
-					text-[10px]
-					tracking-[0.18em]
-					uppercase
-					text-moss/60
-				"
+							className="text-[10px] tracking-[0.18em] uppercase text-moss/60"
 						>
 							Close
 						</button>
 					</div>
-
-					{/* Results */}
 					<div className="px-3 py-2 max-h-[70vh] overflow-y-auto veda-scrollbar">
 						{filteredResults.length > 0 ? (
 							filteredResults.map((item, i) => (
 								<button
 									key={i}
-									className="
-							w-full
-							flex items-center justify-between
-							px-3 py-4
-							rounded-[16px]
-							text-left
-							hover:bg-teal/[0.05]
-							transition-colors
-						"
+									className="w-full flex items-center justify-between px-3 py-4 text-left hover:bg-teal/[0.05] transition-colors"
+									style={{ borderRadius: 16 }}
 								>
 									<div>
 										<p className="font-serif text-[12px] text-bark">
 											{item}
 										</p>
-
 										<p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-moss/40">
 											Veda Ritual
 										</p>
 									</div>
-
 									<div className="text-teal/40">
 										<ArrowRightIcon />
 									</div>
@@ -733,7 +1000,6 @@ export default function Navbar() {
 								<p className="font-serif text-[20px] text-bark/80">
 									No results
 								</p>
-
 								<p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-moss/40">
 									Try another term
 								</p>
